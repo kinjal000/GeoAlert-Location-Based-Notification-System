@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoAlert | Interactive Map Space</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body, html { height: 100%; margin: 0; background-color: #f4f7fc; overflow: hidden; }
+        .main-workspace { display: flex; height: calc(100vh - 60px); width: 100vw; }
+        .left-control-panel { width: 380px; background: #ffffff; border-right: 1px solid #dee2e6; display: flex; flex-direction: column; height: 100%; overflow-y: auto; z-index: 1000; box-shadow: 4px 0 15px rgba(0,0,0,0.05); }
+        .map-canvas-container { flex: 1; position: relative; height: 100%; }
+        #leafletMap { height: 100%; width: 100%; }
+        .context-cards-overlay { position: absolute; bottom: 20px; right: 20px; left: 20px; z-index: 1000; display: flex; gap: 15px; overflow-x: auto; padding: 10px; background: rgba(255,255,255,0.85); backdrop-filter: blur(10px); border-radius: 15px; border: 1px solid rgba(255,255,255,0.5); box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
+        .context-card-node { min-width: 200px; background: #ffffff; border: none; border-radius: 12px; padding: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: all 0.3s ease; }
+        .context-card-node:hover { transform: translateY(-3px); box-shadow: 0 6px 16px rgba(0,0,0,0.1); }
+        .loader-shimmer { background: linear-gradient(90deg, #eff1f3 4%, #e2e5e7 25%, #eff1f3 36%); background-size: 1200px 100%; animation: shimmer 1.5s infinite linear; border-radius: 8px; height: 16px; margin-bottom: 8px; }
+        @keyframes shimmer { 0% { background-position: -1200px 0; } 100% { background-position: 1200px 0; } }
+        .notification-node { border-left: 4px solid #0d6efd; transition: all 0.2s ease; }
+        .notification-node:hover { background-color: #f8f9fa; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm" style="height: 60px;">
+    <div class="container-fluid px-4">
+        <a class="navbar-brand fw-bold" href="/dashboard">📍 GeoAlert</a>
+        <div class="navbar-nav ms-auto flex-row gap-3">
+            <a class="nav-link" href="/dashboard">Dashboard</a>
+            <a class="nav-link active" href="/map">Map</a>
+            <a class="nav-link" href="/notifications">Notifications</a>
+            <a class="nav-link" href="/profile">Profile</a>
+        </div>
+    </div>
+</nav>
+
+<div class="main-workspace">
+    <div class="left-control-panel p-3">
+        <div class="mb-3">
+            <label class="form-label fw-bold text-secondary text-uppercase small">Search Monitor Location</label>
+            <div class="input-group shadow-sm">
+                <input type="text" id="locationInput" class="form-control" placeholder="e.g. Phoenix Mall, Airport...">
+                <button class="btn btn-primary px-3" onclick="searchLocation()">Search</button>
+            </div>
+        </div>
+
+        <div class="card bg-light border-0 p-3 mb-3 shadow-sm rounded-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <small class="text-muted d-block">Current Target Area</small>
+                    <span id="panelCurrentLocation" class="fw-bold text-dark fs-5">Panvel, Maharashtra</span>
+                </div>
+                <div class="text-end">
+                    <small class="text-muted d-block">System Time</small>
+                    <span id="panelCurrentTime" class="badge bg-dark fw-normal">00:00 AM</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <h6 class="fw-bold text-secondary text-uppercase small mb-2">Recent Session Enquiries</h6>
+            <div id="recentSearchesList" class="d-flex flex-wrap gap-2">
+                <span class="badge bg-secondary-subtle text-secondary px-2 py-1 cursor-pointer rounded-pill" onclick="triggerPresetSearch('Gateway of India')">Gateway of India</span>
+                <span class="badge bg-secondary-subtle text-secondary px-2 py-1 cursor-pointer rounded-pill" onclick="triggerPresetSearch('Phoenix Mall')">Phoenix Mall</span>
+                <span class="badge bg-secondary-subtle text-secondary px-2 py-1 cursor-pointer rounded-pill" onclick="triggerPresetSearch('Pune Airport')">Pune Airport</span>
+            </div>
+        </div>
+
+        <hr class="text-muted">
+
+        <div class="flex-grow-1">
+            <h6 class="fw-bold text-primary text-uppercase small mb-3">Live Streaming Notifications</h6>
+            
+            <div id="skeletonLoader" class="d-none">
+                <div class="p-3 border rounded mb-2"><div class="loader-shimmer w-50"></div><div class="loader-shimmer w-75"></div><div class="loader-shimmer w-100"></div></div>
+                <div class="p-3 border rounded mb-2"><div class="loader-shimmer w-25"></div><div class="loader-shimmer w-100"></div></div>
+            </div>
+
+            <div id="leftPanelNotifications" class="d-flex flex-column gap-2">
+                <div class="text-muted text-center py-4 small">No tracking logs generated in this map cycle. Drag marker or run a new search.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="map-canvas-container">
+        <div id="leafletMap"></div>
+
+        <div class="context-cards-overlay" id="contextOverlayDeck">
+            <div class="context-card-node text-center py-3"><p class="text-muted mb-0 small">Execute standard queries to populate dynamic system analytics indices blocks.</p></div>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

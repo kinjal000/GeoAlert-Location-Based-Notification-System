@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoAlert | Historical Log Space</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .history-card { border: none; border-radius: 16px; background: #ffffff; box-shadow: 0 4px 20px rgba(0,0,0,0.02); transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); border-left: 5px solid transparent; }
+        .history-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.07); }
+        .cat-Offer { border-left-color: #198754; }
+        .cat-Traffic { border-left-color: #fd7e14; }
+        .cat-Emergency { border-left-color: #dc3545; }
+        .cat-Event { border-left-color: #0d6efd; }
+        .cat-Parking { border-left-color: #6f42c1; }
+        .cat-General { border-left-color: #6c757d; }
+    </style>
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/dashboard">📍 GeoAlert</a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link" href="/dashboard">Dashboard</a>
+            <a class="nav-link" href="/map">Map</a>
+            <a class="nav-link active" href="/notifications">Notifications</a>
+            <a class="nav-link" href="/profile">Profile</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-5">
+    <div class="card border-0 shadow-sm p-4 bg-white rounded-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="fw-bold text-dark mb-1">📋 Historical Geofence Log Registers</h2>
+                <p class="text-muted mb-0">Comprehensive chronological sequence auditing tracking outputs saved to MongoDB storage tiers.</p>
+            </div>
+            <button class="btn btn-outline-danger btn-sm px-3 rounded-pill" onclick="clearNotificationLogsMemory()">Clear Database Logs</button>
+        </div>
+    </div>
+
+    <div id="historicalNotificationCardsContainer" class="row g-3">
+        <div class="col-12 text-center py-5">
+            <div class="spinner-border text-primary mb-3" role="status"></div>
+            <p class="text-muted">Fetching audit frames from decentralized database arrays...</p>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
