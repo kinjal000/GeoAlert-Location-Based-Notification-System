@@ -15,7 +15,7 @@ The application allows users to register, log in, search for locations, view an 
 ## Step 1: Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/GeoAlert.git
+git clone https://github.com/kinjal000/GeoAlert-Location-Based-Notification-System.git
 ```
 
 ## Step 2: Open the Project Folder
