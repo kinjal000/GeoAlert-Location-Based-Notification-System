@@ -232,6 +232,9 @@ MySQL & MongoDB
 
 This project was developed as part of the **System Design Final Evaluation** to demonstrate practical implementation of location-aware services, database integration, and scalable application architecture using Python and Flask.
 
+
+## System Architecture Diagram
+
                                     +----------------------+
                                     |        User          |
                                     | (Web Browser Client) |
